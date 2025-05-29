@@ -1,0 +1,72 @@
+Script for NicheNet Analysis of Public TRAP-Seq Datasets
+### Analysis run with R v4.2.2 ###
+## load packages  
+library(nichenetr)
+library(tidyverse)
+library(openxlsx)
+
+### Load NicheNet ligand-receptor-target database ### 
+options(timeout = 600)
+organism = "mouse"
+
+if(organism == "human"){
+  lr_network = readRDS(url("https://zenodo.org/record/7074291/files/lr_network_human_21122021.rds”))
+  ligand_target_matrix = readRDS(url("https://zenodo.org/record/7074291/files/ligand_target_matrix_nsga2r_final.rds"))
+} else if(organism == "mouse"){
+  lr_network = readRDS(url("https://zenodo.org/record/7074291/files/lr_network_mouse_21122021.rds"))
+  ligand_target_matrix = readRDS(url("https://zenodo.org/record/7074291/files/ligand_target_matrix_nsga2r_final_mouse.rds"))
+}
+lr_network = lr_network %>% distinct(from, to)
+
+### define ligands
+ligands = lr_network %>% pull(from) %>% unique()
+expressed_ligands = convert_alias_to_symbols(ligands, "mouse", verbose = FALSE)
+expressed_ligands = na.omit(expressed_ligands)
+
+### read in gene set of interest (changed in astrocytes) and background gene set (expressed in astrocytes) for all data sets
+table <- data.frame(read.xlsx("Wntless Supplementary Table4.xlsx", sheet="Sheet 3"))
+
+### For loop to perform NicheNet for all data sets  
+for (i in 1:13){
+  a<-i*2-1
+  b<-i*2
+Expressed_genes_astro <- table[,a]
+geneset_oi_astro <- as.data.frame(table[,b])
+colnames(geneset_oi_astro) = c("gene")
+
+Expressed_genes_astro = convert_alias_to_symbols(Expressed_genes_astro, "mouse", verbose = FALSE)
+geneset_oi_astro[,1] = convert_alias_to_symbols(geneset_oi_astro[,1], "mouse", verbose = FALSE)
+
+
+# only consider genes also present in the NicheNet model 
+geneset_oi_astro = geneset_oi_astro %>% pull(gene) %>% .[. %in% rownames(ligand_target_matrix)] 
+background_expressed_genes = Expressed_genes_astro %>% .[. %in% rownames(ligand_target_matrix)]
+
+### Define targets
+receptors = lr_network %>% pull(to) %>% unique()
+expressed_receptors = intersect(receptors, Expressed_genes_astro)
+
+### Define potential ligand-receptor pairs
+lr_network_expressed = lr_network %>% filter(from %in% expressed_ligands & to %in% expressed_receptors) 
+
+### Define the set of potential ligands  
+potential_ligands = lr_network_expressed %>% pull(from) %>% unique()
+
+### Perform NicheNet's ligand activity analysis on the gene set of interest
+ligand_activities = predict_ligand_activities(geneset = geneset_oi_astro, background_expressed_genes = background_expressed_genes, ligand_target_matrix = ligand_target_matrix, potential_ligands = potential_ligands)
+
+ligand_activities %>% arrange(-aupr_corrected)
+
+### create a table of NicheNet ligand activities for all datasets
+if (i==1) {
+all_ligand_activities <- as.data.frame(expressed_ligands)
+colnames(all_ligand_activities)<-"test_ligand"
+all_ligand_activities <- merge(all_ligand_activities, ligand_activities[,c("test_ligand","aupr_corrected")], by="test_ligand",all.x=TRUE)
+} else {
+  all_ligand_activities <- merge(all_ligand_activities, ligand_activities[,c("test_ligand","aupr_corrected")], by="test_ligand",all.x=TRUE)
+}
+}
+
+## export csv of all ligand activities
+filename<-(paste0(format(now(), "%Y%m%d_%H%M%S_"), "ligand_activities.csv"))
+write.csv(all_ligand_activities, filename)
