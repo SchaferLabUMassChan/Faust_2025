@@ -1,0 +1,59 @@
+Script for NicheNet Microglia-Astrocyte Ligand-Receptor Analysis 
+### Analysis run with R v4.2.2 ###
+## load packages  
+library(nichenetr)
+library(tidyverse)
+library(openxlsx)
+
+### Load NicheNet ligand-receptor-target database ### 
+options(timeout = 600)
+organism = "mouse"
+
+if(organism == "human"){
+  lr_network = readRDS(url("https://zenodo.org/record/7074291/files/lr_network_human_21122021.rds”))
+  ligand_target_matrix = readRDS(url("https://zenodo.org/record/7074291/files/ligand_target_matrix_nsga2r_final.rds"))
+} else if(organism == "mouse"){
+  lr_network = readRDS(url("https://zenodo.org/record/7074291/files/lr_network_mouse_21122021.rds"))
+  ligand_target_matrix = readRDS(url("https://zenodo.org/record/7074291/files/ligand_target_matrix_nsga2r_final_mouse.rds"))
+}
+lr_network = lr_network %>% distinct(from, to)
+
+### define genes expressed in receiver cells (astrocyte TRAP-enriched genes) and sender cells (microglia TRAP-enriched genes) 
+Expressed_genes_astro <- data.frame(read.xlsx("Genes expressed in receiver cells (astrocytes).xlsx"))
+Expressed_genes_micro <- data.frame(read.xlsx("Genes expressed in sender cells (microglia).xlsx"))
+
+### Define gene set of interest (genes differentially expressed in astrocytes in deprived vs. control hem)  
+geneset_oi_astro <- read.xlsx("Gene set of interest.xlsx")
+
+#### Update gene names to be consistent with NicheNet gene names ###
+colnames(Expressed_genes_astro) = convert_alias_to_symbols(colnames(Expressed_genes_astro), "mouse", verbose = FALSE)
+colnames(Expressed_genes_micro) = convert_alias_to_symbols(colnames(Expressed_genes_micro), "mouse", verbose = FALSE)
+colnames(geneset_oi_astro) = convert_alias_to_symbols(colnames(geneset_oi_astro), "mouse", verbose = FALSE)
+
+### Define background gene set (astrocyte TRAP-enriched genes) for comparison to gene set of interest
+background_expressed_genes = Expressed_genes_astro[,1] %>% .[. %in% rownames(ligand_target_matrix)]
+
+### Restrict gene set of interest to genes found in the NicheNet Ligand-Target matrix ###
+colnames(geneset_oi_astro) = c("gene")
+geneset_oi_astro = geneset_oi_astro %>% pull(gene) %>% .[. %in% rownames(ligand_target_matrix)] 
+
+### Define the set of ligands expressed in sender cells (microglia)   
+ligands = lr_network %>% pull(from) %>% unique()
+expressed_ligands = intersect(ligands, Expressed_genes_micro[,1])
+
+### Define the set of receptors expressed in receiver cells (astrocytes)
+receptors = lr_network %>% pull(to) %>% unique()
+expressed_receptors = intersect(receptors, Expressed_genes_astro[,1])
+
+### Define potential ligand-receptor pairs
+lr_network_expressed = lr_network %>% filter(from %in% expressed_ligands & to %in% expressed_receptors) 
+
+### Define the set of potential ligands  
+potential_ligands = lr_network_expressed %>% pull(from) %>% unique()
+
+### Perform NicheNet's ligand activity analysis on the gene set of interest
+ligand_activities = predict_ligand_activities(geneset = geneset_oi_astro, background_expressed_genes = background_expressed_genes, ligand_target_matrix = ligand_target_matrix, potential_ligands = potential_ligands)
+ligand_activities %>% arrange(-pearson)
+
+### Export list of potential ligands and putative ligand activity
+write.csv(ligand_activities,"Microglia putative ligand activities.csv")
