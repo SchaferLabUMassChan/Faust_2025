@@ -881,24 +881,61 @@ Barrels_CX3CL1.combined_NoArts.clean$celltype_clean <- Idents(Barrels_CX3CL1.com
 ######### Plots for Figures ###########
 #######################################
 
-### Figure S5E
+### Figure S5D
 pdf(file="250530 Barrel CX3CL1 celltype UMAP.pdf",width=10,height=8)
 DimPlot_scCustom(Barrels_CX3CL1.combined_NoArts.clean, reduction = "umap",label=FALSE,raster=FALSE)
 dev.off()
 
-### Figure S5F
-pdf(file="250530 Barrel CX3CL1 celltype UMAP by genotype.pdf",width=10,height=8)
-DimPlot_scCustom(Barrels_CX3CL1.combined_NoArts.clean, reduction = "umap",label=FALSE,raster=FALSE,group.by="Genotype")
-dev.off()
-
-### Figure S5G
+### Figure S5E
 pdf(file="250530 Barrel CX3CL1 celltype dotplot.pdf",width=10,height=5)
 Idents(Barrels_CX3CL1.combined_NoArts.clean)<-"celltype_clean"
 levels(Barrels_CX3CL1.combined_NoArts.clean) <- c("Border-Associated Macrophages", "Microglia",   "Endothelial Cells","Meningeal Cells" ,"Pericytes" ,  "OPCs" ,"Oligodendrocytes"   ,"Choroid Plexus" ,    "Ependymal Cells" , "Astrocytes" , "Inhibitory Neurons","Excitatory Neurons")  
 DotPlot_scCustom(Barrels_CX3CL1.combined_NoArts.clean,features = c("Meg3","gad1","gad2","Aqp4","Aldh1l1","ezr","Plp1","Sox10","pdgfra","Cspg4","Pdgfrb","Cldn5","Pecam1","Cx3cr1","Hexb","P2ry12","Mrc1","Lyve1"), x_lab_rotate = TRUE)
 dev.off()
 
-### Figure 4E
+### Figure S5F
+pdf(file="250530 Coverslip1 celltype map1.pdf",width=10,height=10)
+polychrome_pal <- DiscretePalette_scCustomize(num_colors = 12, palette = "polychrome")
+dfall<- data.frame(Barrels_CX3CL1.combined_NoArts.clean$center.x[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_1"))],Barrels_CX3CL1.combined_NoArts.clean$center.y[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_1"))],Barrels_CX3CL1.combined_NoArts.clean@active.ident[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_1"))])
+x <- Barrels_CX3CL1.combined_NoArts.clean$center.x[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_1"))]
+y <- Barrels_CX3CL1.combined_NoArts.clean$center.y[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_1"))]
+group <- Barrels_CX3CL1.combined_NoArts.clean$celltype_clean[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_1"))]
+ggplot(dfall,aes(x,y,colour=group))+geom_point(size=.1, stroke=0)+  theme_classic()+ theme(legend.position ="none") + xlim(0, 16000)+ ylim(0, 16000)+coord_equal()+scale_color_manual(values=polychrome_pal)
+dev.off()
+
+pdf(file="250530 Coverslip2 celltype map.pdf",width=10,height=10)
+polychrome_pal <- DiscretePalette_scCustomize(num_colors = 12, palette = "polychrome")
+dfall<- data.frame(Barrels_CX3CL1.combined_NoArts.clean$center.x[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_2"))],Barrels_CX3CL1.combined_NoArts.clean$center.y[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_2"))],Barrels_CX3CL1.combined_NoArts.clean@active.ident[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_2"))])
+x <- Barrels_CX3CL1.combined_NoArts.clean$center.x[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_2"))]
+y <- Barrels_CX3CL1.combined_NoArts.clean$center.y[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_2"))]
+group <- Barrels_CX3CL1.combined_NoArts.clean$celltype_clean[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_2"))]
+ggplot(dfall,aes(x,y,colour=group))+geom_point(size=.1, stroke=0)+  theme_classic()+ theme(legend.position ="none") + xlim(0, 16000)+ ylim(0, 16000)+coord_equal()+scale_color_manual(values=polychrome_pal)
+dev.off()
+
+pdf(file="250530 Coverslip3 celltype map.pdf",width=10,height=10)
+polychrome_pal <- DiscretePalette_scCustomize(num_colors = 12, palette = "polychrome")
+dfall<- data.frame(Barrels_CX3CL1.combined_NoArts.clean$center.x[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_3"))],Barrels_CX3CL1.combined_NoArts.clean$center.y[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_3"))],Barrels_CX3CL1.combined_NoArts.clean@active.ident[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_3"))])
+x <- Barrels_CX3CL1.combined_NoArts.clean$center.x[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_3"))]
+y <- Barrels_CX3CL1.combined_NoArts.clean$center.y[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_3"))]
+group <- Barrels_CX3CL1.combined_NoArts.clean$celltype_clean[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_3"))]
+ggplot(dfall,aes(x,y,colour=group))+geom_point(size=.1, stroke=0)+  theme_classic()+ theme(legend.position ="none") + xlim(0, 16000)+ ylim(0, 16000)+coord_equal()+scale_color_manual(values=polychrome_pal)
+dev.off()
+
+pdf(file="250530 Coverslip4 celltype map.pdf",width=10,height=10)
+polychrome_pal <- DiscretePalette_scCustomize(num_colors = 12, palette = "polychrome")
+dfall<- data.frame(Barrels_CX3CL1.combined_NoArts.clean$center.x[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_4"))],Barrels_CX3CL1.combined_NoArts.clean$center.y[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_4"))],Barrels_CX3CL1.combined_NoArts.clean@active.ident[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_4"))])
+x <- Barrels_CX3CL1.combined_NoArts.clean$center.x[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_4"))]
+y <- Barrels_CX3CL1.combined_NoArts.clean$center.y[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_4"))]
+group <- Barrels_CX3CL1.combined_NoArts.clean$celltype_clean[WhichCells(object = subset(Barrels_CX3CL1.combined_NoArts.clean,subset = coverslip =="Coverslip_4"))]
+ggplot(dfall,aes(x,y,colour=group))+geom_point(size=.1, stroke=0)+  theme_classic()+ theme(legend.position ="none") + xlim(0, 16000)+ ylim(0, 16000)+coord_equal()+scale_color_manual(values=polychrome_pal)
+dev.off()
+
+### Figure S5G
+pdf(file="250530 Barrel CX3CL1 celltype UMAP by coverslip.pdf",width=10,height=8)
+DimPlot_scCustom(Barrels_CX3CL1.combined_NoArts.clean, reduction = "umap",label=FALSE,raster=FALSE,group.by="coverslip",colors_use = c("yellow","blue","red","cyan"))
+dev.off()
+
+### Figure 5E
 Barrels_CX3CL1.combined_NoArts.clean_WT <- subset(Barrels_CX3CL1.combined_NoArts.clean, Genotype == "WT")
 Idents(Barrels_CX3CL1.combined_NoArts.clean_WT) <- "Region_Layer"
 pdf(file="250530 CX3CL1 Barrel Regions.pdf",width=10,height=10)
@@ -909,34 +946,38 @@ group <- Barrels_CX3CL1.combined_NoArts.clean_WT$Region_Layer[WhichCells(object 
 ggplot(dfall,aes(x,y,colour=group))+geom_point(size=.1)+  theme_classic()+ theme(legend.position ="none") + xlim(0, 15000)+ ylim(0, 15000)+coord_equal()
 dev.off()
 
-### Figure 4G
+### Figure 5G
 Barrels_CX3CL1.combined_NoArts.clean_WT_S1only <- subset(Barrels_CX3CL1.combined_NoArts.clean_WT, subset = Region == "Left" | Region == "Right")
 pdf(file="250530 CX3CL1 Microglia Wnts_WT only.pdf",width=10,height=5)
 Idents(Barrels_CX3CL1.combined_NoArts.clean_WT_S1only) <- "Region_Layer"
 levels(Barrels_CX3CL1.combined_NoArts.clean_WT_S1only) <- c('Left_Layer 6','Right_Layer 6','Left_Layer 5','Right_Layer 5','Left_Layer 4','Right_Layer 4','Left_Layer 2/3','Right_Layer 2/3','Left_Layer 1','Right_Layer 1')
-DotPlot_scCustom(subset(Barrels_CX3CL1.combined_NoArts.clean_WT_S1only,celltype == "Microglia"),features = c("Wnt1","Wnt2","Wnt2b","Wnt3","Wnt3a","Wnt4","Wnt5a","Wnt5b","Wnt6","Wnt7a","Wnt7b","Wnt8a","Wnt8b","Wnt9a","Wnt10a","Wnt11","Wnt16"),x_lab_rotate = TRUE,scale=TRUE)
+DotPlot_scCustom(subset(Barrels_CX3CL1.combined_NoArts.clean_WT_S1only,celltype_clean == "Microglia"),features = c("Wnt1","Wnt2","Wnt2b","Wnt3","Wnt3a","Wnt4","Wnt5a","Wnt5b","Wnt6","Wnt7a","Wnt7b","Wnt8a","Wnt8b","Wnt9a","Wnt10a","Wnt11","Wnt16"),x_lab_rotate = TRUE,scale=TRUE)
 dev.off()
 
-### Figure 4H
+### Figure 5H
 pdf(file="250530 CX3CL1 Microglia aggregate Wnt_WT only.pdf",width=4,height=5)
 levels(Barrels_CX3CL1.combined_NoArts.clean_WT_S1only) <- c('Left_Layer 6','Right_Layer 6','Left_Layer 5','Right_Layer 5','Left_Layer 4','Right_Layer 4','Left_Layer 2/3','Right_Layer 2/3','Left_Layer 1','Right_Layer 1')
 Barrels_CX3CL1.combined_NoArts.clean_WT_S1only <- MetaFeature(Barrels_CX3CL1.combined_NoArts.clean_WT_S1only, features = c("Wnt1","Wnt2","Wnt2b","Wnt3","Wnt3a","Wnt4","Wnt5a","Wnt5b","Wnt6","Wnt7a","Wnt7b","Wnt8a","Wnt8b","Wnt9a","Wnt10a","Wnt11","Wnt16"),meta.name='Aggregate.Wnt')
-DotPlot_scCustom(subset(Barrels_CX3CL1.combined_NoArts.clean_WT_S1only,celltype == "Microglia"),features = c("Aggregate.Wnt"))
+DotPlot_scCustom(subset(Barrels_CX3CL1.combined_NoArts.clean_WT_S1only,celltype_clean == "Microglia"),features = c("Aggregate.Wnt"))
 dev.off()
 
+### Figure S7B
+pdf(file="250530 Barrel CX3CL1 celltype UMAP by genotype.pdf",width=10,height=8)
+DimPlot_scCustom(Barrels_CX3CL1.combined_NoArts.clean, reduction = "umap",label=FALSE,raster=FALSE,group.by="Genotype")
+dev.off()
 
 ### Figure S7C
 pdf(file="250530 CX3CL1 Microglia Wnt_KO vs WT.pdf",width=4,height=5)
 Idents(Barrels_CX3CL1.combined_NoArts.clean)<-"Genotype"
 levels(Barrels_CX3CL1.combined_NoArts.clean) <- c("WT","KO")  
-DotPlot_scCustom(subset(Barrels_CX3CL1.combined_NoArts.clean,celltype == "Microglia"),features = c("Porcn","Wls","Wnt16","Wnt11","Wnt10a","Wnt9a","Wnt8b","Wnt8a","Wnt7b","Wnt7a","Wnt6","Wnt5b","Wnt5a","Wnt4","Wnt3a","Wnt3","Wnt2b","Wnt2","Wnt1"),group.by="Genotype",scale=FALSE, flip_axes = T)
+DotPlot_scCustom(subset(Barrels_CX3CL1.combined_NoArts.clean,celltype_clean == "Microglia"),features = c("Porcn","Wls","Wnt16","Wnt11","Wnt10a","Wnt9a","Wnt8b","Wnt8a","Wnt7b","Wnt7a","Wnt6","Wnt5b","Wnt5a","Wnt4","Wnt3a","Wnt3","Wnt2b","Wnt2","Wnt1"),group.by="Genotype",scale=FALSE, flip_axes = T)
 dev.off()
 
 ### Figure S7D
 pdf(file="250530 CX3CL1 Astrocyte FZD_KO vs WT.pdf",width=4,height=5)
 Idents(Barrels_CX3CL1.combined_NoArts.clean)<-"Genotype"
 levels(Barrels_CX3CL1.combined_NoArts.clean) <- c("WT","KO")  
-DotPlot_scCustom(subset(Barrels_CX3CL1.combined_NoArts.clean,celltype == "Astrocytes"),features = c("Tcf7l2","Tcf7l1","Tcf7","Lef1","Ctnnb1","Gsk3b","Csnk2a1","Csnk1a1","Apc","Apc2","Dvl1","Dvl2","Dvl3","Lrp5","Lrp6","Fzd10","Fzd9","Fzd8","Fzd7","Fzd6","Fzd5","Fzd4","Fzd3","Fzd2","Fzd1"),group.by="Genotype",scale=FALSE, flip_axes = T)
+DotPlot_scCustom(subset(Barrels_CX3CL1.combined_NoArts.clean,celltype_clean == "Astrocytes"),features = c("Tcf7l2","Tcf7l1","Tcf7","Lef1","Ctnnb1","Gsk3b","Csnk2a1","Csnk1a1","Apc","Apc2","Dvl1","Dvl2","Dvl3","Lrp5","Lrp6","Fzd10","Fzd9","Fzd8","Fzd7","Fzd6","Fzd5","Fzd4","Fzd3","Fzd2","Fzd1"),group.by="Genotype",scale=FALSE, flip_axes = T)
 dev.off()
 
 
