@@ -1,0 +1,163 @@
+########## DATA ANALYSIS ##########
+
+library(plyr)
+library(stringr)
+library(ggplot2)
+library(reshape)
+library(car)
+library(agricolae)
+library(xlsx)
+library(lme4)
+library(nlme)
+require(multcomp)
+library(tayloRswift)
+source('C:/Users/Kristina/Documents/Lab/Code/multiplot_function_ggplot.R')
+setwd('C:/Users/Kristina/Documents/Lab/Collabs/SchaferLab/Faust_et_al_2024/Sholl/ResultsSummary/')
+
+prep2 <- read.csv('../20240604_Prep04/MergedData_prep20240712.csv')
+prep2$date <- 'prep20240606'
+prep2 <- prep2[,c(1:3,5:6)]
+
+prep3 <- read.csv('../20240716_Prep05/MergedData_prep20240717.csv')
+prep3$date <- 'prep20240716'
+prep3 <- prep3[,c(1:3,5:6)]
+
+prep4 <- read.csv('../20240730_Prep06/MergedData_prep20240730.csv')
+prep4$date <- 'prep20240730'
+prep4 <- prep4[,c(1:3,5:6)]
+
+all <- rbind(prep2, prep3, prep4)
+all$Condition <- gsub('x_', 'x', all$Condition)
+all$Condition <- gsub('0$', '0ng', all$Condition)
+write.csv(all, 'FinalData_allReps_20240828.csv', row.names=F)
+
+#####################################################################
+############       STATISTICS    all Conditions together  ###########
+#####################################################################
+
+all$cellID <- rep(1:(nrow(all)/141), each=141) #141 is number of radii measured
+all$cellID <- factor(all$cellID)
+all$Condition <- factor(all$Condition)
+
+
+alltest <- nlme::lme(
+  value ~  1 + Condition,
+  data = all,
+  random = ~ 1 | cellID / Radius ,
+  correlation = corAR1(),
+  control = list(opt = "optim")
+)
+
+
+summary(alltest)
+AOV <- anova(alltest) #F(1,6) = 5.52, p = 1.86E-5
+AOV
+
+tukeys <- summary(glht(alltest, linfct=mcp(Condition="Tukey")))
+tukeysPH <- data.frame(as.character(row.names(tukeys$linfct)), tukeys$test$pvalues)
+write.csv(tukeysPH, 'Tukey_allComparisons_20240820.csv', row.names=F, quote=F)
+
+#####################################################################
+############          STATISTICS        by Wnt group      ###########
+#####################################################################
+
+# Wnt4 #
+wnt4 <- all[all$Condition == 'NoTx' | all$Condition == 'Wnt4_100ng' | all$Condition == 'Wnt4_50ng', ]
+wnt4$Condition <- factor(wnt4$Condition)
+
+wnt4test <- nlme::lme(
+  value ~  1 + Condition,
+  data = wnt4,
+  random = ~ 1 | cellID / Radius ,
+  correlation = corAR1(),
+  control = list(opt = "optim")
+)
+
+
+summary(wnt4test)
+AOV.4 <- anova(wnt4test) #F(1,2) = 0.4, p = 0.657
+
+# Wnt 5 #
+wnt5 <- all[all$Condition == 'NoTx' | all$Condition == 'Wnt5_100ng' | all$Condition == 'Wnt5_50ng', ]
+wnt5$Condition <- factor(wnt5$Condition)
+
+wnt5test <- nlme::lme(
+  value ~  1 + Condition,
+  data = wnt5,
+  random = ~ 1 | cellID / Radius ,
+  correlation = corAR1(),
+  control = list(opt = "optim")
+)
+
+
+summary(wnt5test)
+AOV.5 <- anova(wnt5test) #F(1,2) = 14.16, p = 2.72E-6
+
+tukeys.5 <- summary(glht(wnt5test, linfct=mcp(Condition="Tukey")))
+tukeysPH.5 <- data.frame(as.character(row.names(tukeys.5$linfct)), tukeys.5$test$pvalues)
+write.csv(tukeysPH.5, 'Wnt5_TukeysResults.csv', row.names=F, quote=F)
+
+
+# Wnt 7 #
+wnt7 <- all[all$Condition == 'NoTx' | all$Condition == 'Wnt7_100ng' | all$Condition == 'Wnt7_50ng', ]
+wnt7$Condition <- factor(wnt7$Condition)
+
+wnt7test <- nlme::lme(
+  value ~  1 + Condition,
+  data = wnt7,
+  random = ~ 1 | cellID / Radius ,
+  correlation = corAR1(),
+  control = list(opt = "optim")
+)
+
+
+summary(wnt7test)
+AOV.7 <- anova(wnt7test) #F(1,2) = 6.45, p = 0.0021
+
+tukeys.7 <- summary(glht(wnt7test, linfct=mcp(Condition="Tukey")))
+tukeysPH.7 <- data.frame(as.character(row.names(tukeys.7$linfct)), tukeys.7$test$pvalues)
+write.csv(tukeysPH.7, 'Wnt7_TukeysResults.csv', row.names=F, quote=F)
+
+
+#####################################################################
+############                   PLOTS                     ###########
+#####################################################################
+mer <- aggregate(all$value, by=list(all$Condition, all$date, all$Radius), mean)
+colnames(mer) <- c('Condition', 'Replicate', 'Radius', 'Value')
+
+
+plot1 <- c('NoTx', 'Wnt4_50ng', 'Wnt4_100ng')
+ggplot(mer[mer$Condition %in% plot1, ], aes(x=Radius, y=Value, group=Condition, fill=Condition)) + stat_smooth(col='black', method='loess', span=0.1, alpha=0.3) + 
+  ylab('# Intersections') + xlab ('Distance from Soma (um)') + 
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=14,face="bold")) + theme_minimal()
+
+plot2 <- c('NoTx', 'Wnt5_50ng', 'Wnt5_100ng')
+ggplot(mer[mer$Condition %in% plot2, ], aes(x=Radius, y=Value, group=Condition, fill=Condition)) + stat_smooth(col='black', method='loess', span=0.1, alpha=0.3) + 
+  ylab('# Intersections') + xlab ('Distance from Soma (um)') +  
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=14,face="bold")) + theme_minimal()
+
+plot3 <- c('NoTx', 'Wnt7_50ng', 'Wnt7_100ng')
+ggplot(mer[mer$Condition %in% plot3, ], aes(x=Radius, y=Value, group=Condition, fill=Condition)) + stat_smooth(col='black', method='loess', span=0.1, alpha=0.3) + 
+  ylab('# Intersections') + xlab ('Distance from Soma (um)') + 
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=14,face="bold")) + theme_minimal()
+
+
+
+############################################
+# Plots by replicate
+
+ggplot(mer[mer$Condition %in% plot1, ], aes(x=Radius, y=Value, group=Condition, fill=Condition)) + 
+  stat_smooth(col='black', method='loess', span=0.1, alpha=0.3, lwd=0.5) + 
+  ylab('# Intersections') + xlab ('Distance from Soma (um)') + 
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=14,face="bold")) + theme_minimal() + facet_wrap(~Replicate)
+
+
+ggplot(mer[mer$Condition %in% plot2, ], aes(x=Radius, y=Value, group=Condition, fill=Condition)) + 
+  stat_smooth(col='black', method='loess', span=0.1, alpha=0.3, lwd=0.5) + 
+  ylab('# Intersections') + xlab ('Distance from Soma (um)') +  
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=14,face="bold")) + theme_minimal() + facet_wrap(~Replicate)
+
+ggplot(mer[mer$Condition %in% plot3, ], aes(x=Radius, y=Value, group=Condition, fill=Condition)) + 
+  stat_smooth(col='black', method='loess', span=0.1, alpha=0.3, lwd=0.5) + 
+  ylab('# Intersections') + xlab ('Distance from Soma (um)') + 
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=14,face="bold")) + theme_minimal() + facet_wrap(~Replicate)
