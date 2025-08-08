@@ -6,4 +6,5 @@ This repository contains the code associated with the manuscript "Microglia-astr
 
 ### Citation
 If you use this code, please cite:
+
 Faust et al. (2025). Code for: Microglia-astrocyte crosstalk regulates synapse remodeling via Wnt signaling. Zenodo. https://doi.org/10.5281/zenodo.16764343
