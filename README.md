@@ -3,3 +3,7 @@ This repository contains the code associated with the manuscript "Microglia-astr
 - The R script for NicheNet Microglia-Astrocyte Ligand-Receptor Analysis (Figures 5B-C and Table S6)
 - The R script for MERFISH Analysis (Figures 5D-H, S5C-G, and Table S6)
 - The R script for Sholl Analysis (Figures 5I-M, S5H-I)
+
+### Citation
+If you use this code, please cite:
+Faust et al. (2025). Code for: Microglia-astrocyte crosstalk regulates synapse remodeling via Wnt signaling. Zenodo. https://doi.org/10.5281/zenodo.16764343
